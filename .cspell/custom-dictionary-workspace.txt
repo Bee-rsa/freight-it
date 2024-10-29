@@ -1,4 +1,14 @@
+Accessorial
+authbusiness
+cloudinary
 codepaths
 datepicker
+fortawesome
+initialise
+removebg
+Roboto
+Servives
+tanstack
+testid
 tsbuildinfo
 useform

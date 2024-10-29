@@ -2,84 +2,110 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import * as apiClient from "../api-client";
 import { useAppContext } from "../contexts/AppContext";
-import { Link, useNavigate } from "react-router-dom";
-
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import FreightItLogo from "../assets/1000140889-removebg-preview.png";
 
 export type SignInFormData = {
-    email: string;
-    password: string;
-}
+  email: string;
+  password: string;
+};
 
 const SignIn = () => {
-    const { showToast} = useAppContext();
-    const navigate = useNavigate();
-    const queryClient = useQueryClient();
-    const { register, 
-        formState: { errors }, 
-        handleSubmit
-    } = useForm<SignInFormData>();
+  const { showToast } = useAppContext();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const location = useLocation();
 
-    const mutation = useMutation(apiClient.signIn, {
-        onSuccess: async () => {
-            showToast({ message: "Sign in Successful!", type: "SUCCESS" });
-            await queryClient.invalidateQueries("validateToken");
-            navigate("/");
-        },
-        onError: (error: Error) => {
-            showToast({ message: error.message, type: "ERROR" });
-        },
-      });
-    
-      const onSubmit = handleSubmit((data) => {
-        mutation.mutate(data);
-      });
-    
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm<SignInFormData>();
 
-    return(
-        <form className="flex flex-col gap-5" onSubmit={onSubmit}>
-            <h2 className="text-3xl font bold">Sign In</h2>
+  const mutation = useMutation(apiClient.signIn, {
+    onSuccess: async () => {
+      showToast({ message: "Sign in Successful!", type: "SUCCESS" });
+      await queryClient.invalidateQueries("validateToken");
+      navigate(location.state?.from?.pathname || "/user-home");
+    },
+    onError: (error: Error) => {
+      showToast({ message: error.message, type: "ERROR" });
+    },
+  });
 
-            <label className="text-gray-700 text-sm font-bold flex-1">
-        Email
-        <input 
-        type="email"
-        className="border rounded w-full py-1 px-2 font-large"
-        {...register("email", { required:"This field is required" })}
-        ></input>
-        {errors.email && (
-          <span className="text-red-500">{errors.email.message}</span>
-        )}
-      </label>
-      <label className="text-gray-700 text-sm font-bold flex-1">
-        Password
-        <input 
-        type="password"
-        className="border rounded w-full py-1 px-2 font-normal"
-        {...register("password", { required:"This field is required", 
-          minLength: {
-            value: 6,
-            message: "Password must be at least 6 characters"
-          },
-         })}
-        ></input>
-         {errors.password && (
-          <span className="text-red-500">{errors.password.message}</span>
-        )}
-      </label>
-      <span className="flex items-center justify-between">
-        <span className="text-sm">
-          Not Registered?{" "}
-          <Link className="underline" to="/register">
-            Create an account here
-          </Link>
-        </span>
-        <button type= "submit" className="bg-blue-600 text-white p-2 font bold hover:bg-blue-500 text-xl">
-            Login In
-        </button>
-       </span>
-        </form>
-    )
-}
+  const onSubmit = handleSubmit((data) => {
+    mutation.mutate(data);
+  });
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 mt-8">
+      <div className="w-full max-w-4xl flex flex-col md:flex-row bg-white rounded-lg shadow-lg">
+        {/* Left Section: Sign In Form */}
+        <div className="w-full md:w-1/2 bg-white p-8">
+          <form onSubmit={onSubmit} className="space-y-6">
+            <h2 className="text-3xl font-bold text-center text-gray-800">Sign In</h2>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+                <input
+                  type="email"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  {...register("email", { required: "This field is required" })}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                )}
+              </label>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Password
+                <input
+                  type="password"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  {...register("password", {
+                    required: "This field is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
+                  })}
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                )}
+              </label>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">
+                Not Registered?{" "}
+                <Link className="text-blue-600 hover:underline" to="/register">
+                  Create an account here
+                </Link>
+              </span>
+              <button
+                type="submit"
+                className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-300"
+              >
+                Sign In
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Right Section: Logo */}
+        <div className="hidden md:flex md:w-1/2 bg-blue-900 rounded-r-lg items-center justify-center flex-col">
+          <img src={FreightItLogo} alt="Freight It Logo" className="w-2/3 mb-4" />
+          <p className="text-lg md:text-2xl font-bold mb-6 text-center text-white px-4 py-2"> {/* Added padding */}
+            "Welcome Back! Let's get you signed in to continue where you left off and keep things moving."
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default SignIn;
-
